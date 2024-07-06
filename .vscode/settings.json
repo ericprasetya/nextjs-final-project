@@ -1,0 +1,14 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript"],
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "emmet.syntaxProfiles": {
+    "javascript": "jsx"
+  }
+}
