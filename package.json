@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.5",
     "@nextui-org/avatar": "^2.0.30",
     "date-fns": "^3.6.0",
+    "eslint": "^8.57.0",
     "framer-motion": "^11.2.13",
     "js-cookie": "^3.0.5",
     "next": "14.2.4",
@@ -26,8 +27,7 @@
   "devDependencies": {
     "@eslint/compat": "^1.1.0",
     "@eslint/js": "^9.6.0",
-    "eslint": "^9.6.0",
-    "eslint-config-next": "14.2.4",
+    "eslint-config-next": "^14.2.4",
     "eslint-plugin-react": "^7.34.3",
     "globals": "^15.8.0"
   }
