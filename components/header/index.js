@@ -25,9 +25,9 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { UserContext } from '@/context/userContext';
 
-const Links = [
-  { name: 'Posts', path: '/posts' },
-];
+// const Links = [
+//   { name: 'Posts', path: '/posts' },
+// ];
 const NavLink = ({ path, children }) => {
   return (
     <Link href={path} passHref>
@@ -78,14 +78,14 @@ function Header() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={'center'}>
-            <Box>Sanber Daily</Box>
-            <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
+            <NavLink key={"home"} path={"/"}>Sanber Daily</NavLink>
+            {/* <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
               {Links.map((link) => (
                 <NavLink key={link.name} path={link.path}>
                   {link.name}
                 </NavLink>
               ))}
-            </HStack>
+            </HStack> */}
           </HStack>
           <Flex alignItems={'center'}>
             <Menu>
@@ -104,7 +104,11 @@ function Header() {
                 <Text>{userData?.name}</Text>
               </MenuButton>
               <MenuList>
-                <MenuItem>My Profile</MenuItem>
+                <MenuItem>
+                  <Link href="/profile" passHref>
+                    My Profile
+                  </Link>
+                </MenuItem>
                 <MenuItem>Notification</MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={HandleLogout}>Logout</MenuItem>

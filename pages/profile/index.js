@@ -1,18 +1,17 @@
 import dynamic from "next/dynamic";
-
-const LayoutComponent = dynamic(() => import("@/layout"));
-
-import { useQueries } from "@/hooks/useQueries";
-import React from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Heading,
-  Button,
   Box,
-  Textarea,
-  SimpleGrid,
-  IconButton,
   Text,
+  Avatar,
+  SimpleGrid,
+  useColorModeValue,
+  Button,
+  Divider,
+  Textarea,
+  IconButton,
   useToast,
   Modal,
   ModalOverlay,
@@ -22,25 +21,61 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
-import { FaHeart, FaComment } from "react-icons/fa";
-import { useState } from "react";
+import { UserContext } from "@/context/userContext";
+import { useContext } from "react";
+import {
+  FaHeart,
+  FaComment,
+  FaEllipsisV,
+  FaEdit,
+  FaTrashAlt,
+} from "react-icons/fa";
 import Cookies from "js-cookie";
 import { useMutation } from "@/hooks/useMutation";
+import { useQueries } from "@/hooks/useQueries";
+import DeleteConfirmationModal from "@/components/deleteConfirmationModal";
+import { set } from "date-fns";
+import RepliesModal from "@/components/repliesModal";
+import EditPostModal from "@/components/editPostModal";
 
-export default function Main({}) {
+const LayoutComponent = dynamic(() => import("@/layout"));
+
+export default function Profile() {
+  const formBackground = useColorModeValue("gray.100", "gray.700");
+  const userData = useContext(UserContext);
+  console.log("userData => ", userData);
+
   const { mutate } = useMutation();
   const toast = useToast();
   const [payload, setPayload] = useState({
     description: "",
   });
-  const [replyContent, setReplyContent] = useState("");
+
   const [currentPostId, setCurrentPostId] = useState(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [replies, setReplies] = useState([]);
+  const [editPost, setEditPost] = useState(null);
+  const [deletePost, setDeletePost] = useState(null);
+  const [isDeleteModalOpen, setisDeleteModalOpen] = useState(false);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [isEditModalOpen, setisEditModalOpen] = useState(false);
+
+  const handleModalClose = () => {
+    setisDeleteModalOpen(false);
+    setDeletePost(null);
+    setisEditModalOpen(false);
+    setEditPost(null);
+    setCurrentPostId(null);
+    setIsReplyModalOpen(false);
+    window.location.reload();
+  };
 
   const { data, isLoading } = useQueries({
-    prefixUrl: "https://service.pace-unv.cloud/api/posts?type=all",
+    prefixUrl: "https://service.pace-unv.cloud/api/posts?type=me",
     headers: {
       Authorization: "Bearer " + Cookies.get("user_token"),
     },
@@ -143,14 +178,14 @@ export default function Main({}) {
     } catch (error) {
       console.error("Error fetching replies:", error);
     }
-    onOpen();
+    setIsReplyModalOpen(true);
   };
 
-  const submitReply = async () => {
+  const submitReply = async (postId, replyContent) => {
     if (replyContent.trim()) {
       try {
         const response = await mutate({
-          url: `https://service.pace-unv.cloud/api/replies/post/${currentPostId}`,
+          url: `https://service.pace-unv.cloud/api/replies/post/${postId}`,
           method: "POST",
           payload: { description: replyContent },
           headers: {
@@ -183,14 +218,79 @@ export default function Main({}) {
     }
   };
 
-  const closeModal = () => {
-    window.location.reload();
-    onClose();
+  const submitEdit = () => {
+    // window.location.reload();
+  };
+
+  const handleEdit = (post) => {
+    setEditPost(post);
+    setisEditModalOpen(true);
+  };
+
+  const handleDelete = (id) => {
+    setDeletePost(id);
+    setisDeleteModalOpen(true);
+  };
+
+  const submitDelete = async () => {
+    const response = await mutate({
+      url: `https://service.pace-unv.cloud/api/post/delete/${deletePost}`,
+      method: "DELETE",
+      headers: {
+        Authorization: "Bearer " + Cookies.get("user_token"),
+      },
+    });
+    if (response.success) {
+      console.log("Delete Success");
+      window.location.reload();
+    } else {
+      console.log("Delete Failed");
+      toast({
+        title: "Delete Failed",
+        description: response.message,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
 
   return (
     <>
-      <LayoutComponent metaTitle="Home">
+      <LayoutComponent metaTitle="Profile">
+        <Flex justifyContent="center" p={6}>
+          <Box
+            p={6}
+            w="full"
+            borderWidth={1}
+            borderRadius="lg"
+            overflow="hidden"
+            boxShadow="lg"
+            bg={formBackground}
+          >
+            <Flex justifyContent="center" mb={4}></Flex>
+            <Heading fontSize="xl" textAlign="center">
+              {userData?.name}
+            </Heading>
+            <Divider mb={4} />
+            <Flex justifyContent="space-evenly">
+              <Text>
+                <strong>Email:</strong> {userData?.email}
+              </Text>
+              <Text>
+                <strong>Phone:</strong> {userData?.phone}
+              </Text>
+              <Text>
+                <strong>Hobby:</strong> {userData?.hobby}
+              </Text>
+              <Text>
+                <strong>Joined:</strong>{" "}
+                {new Date(userData?.created_at).toLocaleDateString()}
+              </Text>
+            </Flex>
+          </Box>
+        </Flex>
         <Flex flexDirection="column" p={12} borderRadius={8} boxShadow="lg">
           <Heading mb={6}>Upload Post</Heading>
           <Textarea
@@ -215,12 +315,41 @@ export default function Main({}) {
               borderRadius={8}
               boxShadow="md"
               bg="white"
+              position="relative" // Ensure the container is relative for absolute positioning of the menu
             >
+              {/* Top right position for MenuButton */}
+              <Menu placement="bottom-end">
+                <MenuButton
+                  as={IconButton}
+                  aria-label="Options"
+                  icon={<FaEllipsisV />}
+                  variant="ghost"
+                  colorScheme="teal"
+                  position="absolute"
+                  top={2}
+                  right={2}
+                />
+                <MenuList>
+                  <MenuItem icon={<FaEdit />} onClick={() => handleEdit(post)}>
+                    Edit
+                  </MenuItem>
+                  <MenuItem
+                    icon={<FaTrashAlt />}
+                    color="red.500"
+                    onClick={() => handleDelete(post.id)}
+                  >
+                    Delete
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+
               <Text fontWeight="bold" mb={2}>
                 {post.user.name}
               </Text>
               <Text mb={2}>{post.description}</Text>
-              <Text mb={4}>{new Date(post.created_at).toLocaleDateString()}</Text>
+              <Text mb={4}>
+                {new Date(post.created_at).toLocaleDateString()}
+              </Text>
               <Flex justifyContent="space-between" alignItems="center">
                 <IconButton
                   icon={<FaHeart color={post.is_like_post ? "red" : "gray"} />}
@@ -248,47 +377,29 @@ export default function Main({}) {
           ))}
         </SimpleGrid>
 
-        <Modal isOpen={isOpen} onClose={closeModal}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Reply to Post</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Write your reply here..."
-                mb={4}
-              />
-              <Button colorScheme="blue" mr={3} onClick={submitReply}>
-                Submit
-              </Button>
-              <Button variant="ghost" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Box mt={6}>
-                {replies.map((reply) => (
-                  <Box
-                    key={reply.id}
-                    p={2}
-                    borderWidth={1}
-                    borderRadius={8}
-                    boxShadow="md"
-                    mb={2}
-                  >
-                    <Text fontWeight="bold">{reply.user.name}</Text>
-                    <Text>{reply.description}</Text>
-                  </Box>
-                ))}
-              </Box>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" onClick={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+        {/* modal for replies */}
+        <RepliesModal
+          isOpen={isReplyModalOpen}
+          onClose={handleModalClose}
+          postId={currentPostId}
+          replies={replies}
+          submitReply={submitReply}
+        />
+
+        {/* modal for confirm delete */}
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleModalClose}
+          onDelete={submitDelete}
+        />
+
+        {/* modal for edit post */}
+        <EditPostModal
+          isOpen={isEditModalOpen}
+          onClose={handleModalClose}
+          post={editPost}
+          onSubmit={submitEdit}
+        />
       </LayoutComponent>
     </>
   );
