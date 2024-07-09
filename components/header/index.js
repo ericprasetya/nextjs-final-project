@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import Link from 'next/link';
-import { useQueries } from '@/hooks/useQueries';
 import Cookies from 'js-cookie';
 import { useMutation } from '@/hooks/useMutation';
 import { useRouter } from 'next/router';
@@ -109,7 +108,11 @@ function Header() {
                     My Profile
                   </Link>
                 </MenuItem>
-                <MenuItem>Notification</MenuItem>
+                <MenuItem>
+                  <Link href="/notifications" passHref>
+                    Notifications
+                  </Link>
+                </MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={HandleLogout}>Logout</MenuItem>
               </MenuList>

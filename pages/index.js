@@ -11,7 +11,6 @@ import { UserContext } from "@/context/userContext";
 import { useContext } from "react";
 import Cookies from "js-cookie";
 import { useMutation } from "@/hooks/useMutation";
-import ProfileCard from "@/components/profileCard";
 import PostList from "@/components/postList";
 
 const LayoutComponent = dynamic(() => import("@/layout"));
