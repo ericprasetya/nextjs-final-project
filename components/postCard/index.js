@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   FaHeart,
@@ -63,11 +64,19 @@ const PostCard = ({
         </Menu>
       )}
 
-      <Text fontWeight="bold" mb={2}>
-        {post.user.name} {post.is_own_post && "(You)"}
-      </Text>
-      <Text mb={2}>{post.description}</Text>
-      <Text mb={4}>{new Date(post.created_at).toLocaleDateString()} {post.updated_at != post.created_at && "(EDITED)"}</Text>
+      <Flex mb={5} alignItems="center">
+        <Avatar name={post.user.name} mr={3} />
+        <Box>
+          <Text fontWeight="bold">
+            {post.user.name} {post.is_own_post && "(You)"}
+          </Text>
+          <Text>{post.description}</Text>
+          <Text fontSize="xs">
+            {new Date(post.created_at).toDateString()}{" "}
+            {post.updated_at != post.created_at && "(EDITED)"}
+          </Text>
+        </Box>
+      </Flex>
       <Flex justifyContent="space-between" alignItems="center">
         <IconButton
           icon={<FaHeart color={post.is_like_post ? "red" : "gray"} />}
