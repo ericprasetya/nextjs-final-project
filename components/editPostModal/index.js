@@ -14,7 +14,7 @@ import {
 import { useMutation } from "@/hooks/useMutation";
 import Cookies from "js-cookie";
 
-const EditPostModal = ({ isOpen, onClose, post, onSubmit }) => {
+const EditPostModal = ({ isOpen, onClose, post }) => {
   const [editContent, setEditContent] = useState("");
   const { mutate } = useMutation();
   const toast = useToast();
@@ -43,7 +43,6 @@ const EditPostModal = ({ isOpen, onClose, post, onSubmit }) => {
           isClosable: true,
           position: "top",
         });
-        onSubmit(); // Reload data or perform any necessary action after edit
         onClose();
       } else {
         toast({
