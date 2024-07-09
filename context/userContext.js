@@ -9,6 +9,7 @@ export function UserContextProvider({ children, ...props}) {
     prefixUrl: "https://service.pace-unv.cloud/api/user/me",
     headers: {
       Authorization: "Bearer " + Cookies.get("user_token"),
+      mode: "no-cors",
     },
   }); 
   return (

@@ -26,10 +26,7 @@ import { useContext } from 'react';
 import { UserContext } from '@/context/userContext';
 
 const Links = [
-  { name: 'Dashboard', path: '/' },
-  { name: 'Notes', path: '/notes' },
   { name: 'Posts', path: '/posts' },
-  { name: 'Users', path: '/users' },
 ];
 const NavLink = ({ path, children }) => {
   return (
@@ -81,7 +78,7 @@ function Header() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={'center'}>
-            <Box>Logo</Box>
+            <Box>Sanber Daily</Box>
             <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
               {Links.map((link) => (
                 <NavLink key={link.name} path={link.path}>
@@ -107,8 +104,8 @@ function Header() {
                 <Text>{userData?.name}</Text>
               </MenuButton>
               <MenuList>
-                <MenuItem>Link 2</MenuItem>
-                <MenuItem>Link 3</MenuItem>
+                <MenuItem>My Profile</MenuItem>
+                <MenuItem>Notification</MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={HandleLogout}>Logout</MenuItem>
               </MenuList>
